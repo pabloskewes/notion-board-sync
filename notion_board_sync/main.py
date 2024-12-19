@@ -1,6 +1,6 @@
 from notion_board_sync.notion_client import NotionClient
 from notion_board_sync.slack_client import SlackClient
-from notion_board_sync.parser import parse_tickets
+from notion_board_sync.ticket_parser import parse_tickets
 from notion_board_sync.config import settings
 
 
@@ -11,7 +11,6 @@ def main():
     )
     slack_client = SlackClient(bot_token=settings.SLACK_BOT_TOKEN)
 
-    # Fetch and parse Notion tickets
     raw_data = notion_client.query_database()
     tickets = parse_tickets(raw_data)
 
