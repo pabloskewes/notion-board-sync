@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "notion-board-sync"
+version = "0.1.0"
+description = "An automation tool for synchronizing updates from a Notion board template with external platforms. Currently integrates with Slack to notify changes in tickets (creation, updates, and deletions), with future plans for additional integrations."
+authors = ["Pablo Skewes <pablo.skewes@ug.uchile.cl>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.32.3"
+python-dotenv = "^1.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-mock = "^3.14.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
