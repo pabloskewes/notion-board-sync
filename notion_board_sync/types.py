@@ -20,7 +20,7 @@ class TicketState(BaseModel):
 
 
 class UpdateInfo(BaseModel):
-    ticket: Optional[Ticket]
+    ticket: Ticket
     before: Optional[TicketState] = None
     current: Optional[TicketState] = None
 

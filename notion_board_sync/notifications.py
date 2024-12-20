@@ -1,5 +1,10 @@
+import logging
 from typing import List
+
 from notion_board_sync.types import UpdateInfo
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def send_notifications(
@@ -16,7 +21,7 @@ def send_notifications(
         slack_channel: The Slack channel ID to send notifications to.
     """
     for update in updates:
-        if update.before is None:
+        if update.is_created:
             # New ticket notification
             message = f"""
             *New Ticket:* {update.ticket.title}
@@ -24,7 +29,12 @@ def send_notifications(
             *Priority:* {update.current.priority or 'N/A'}
             *URL:* {update.ticket.url}
             """
-        else:
+        elif update.is_deleted:
+            # Deleted ticket notification
+            message = f"""
+            *Deleted Ticket:* {update.before.title}
+            """
+        elif update.is_updated:
             # Updated ticket notification
             changes = []
             if update.before.title != update.current.title:
@@ -45,7 +55,12 @@ def send_notifications(
             {"\n".join(changes)}
             *URL:* {update.ticket.url}
             """
+        else:
+            # No actionable updates
+            continue
 
         # Send the Slack message
         slack_client.send_message(channel=slack_channel, text=message)
-        print(f"Notification sent for ticket: {update.ticket.title}")
+        LOGGER.info(
+            f"Notification sent for ticket: {update.ticket.title if update.ticket else update.before.title}"
+        )

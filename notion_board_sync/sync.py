@@ -7,7 +7,7 @@ from notion_board_sync.db import TicketDB
 from notion_board_sync.types import TicketState, UpdateInfo
 
 
-def sync_tickets(
+def sync_notion_and_db_tickets(
     notion_client,
     db_session: Session,
 ) -> list[UpdateInfo]:

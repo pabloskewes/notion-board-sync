@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from notion_board_sync.db import TicketDB, Session as DBSession
 from notion_board_sync.notion_client import NotionClient
-from notion_board_sync.sync import sync_tickets
+from notion_board_sync.sync import sync_notion_and_db_tickets
 from notion_board_sync.config import settings
 
 
@@ -17,7 +17,7 @@ def main():
     try:
         # Perform the sync and track progress with tqdm
         print("Syncing tickets from Notion...")
-        updates = sync_tickets(notion_client, db_session)
+        updates = sync_notion_and_db_tickets(notion_client, db_session)
         for _ in tqdm(updates, desc="Processing tickets", unit="ticket"):
             pass
 

@@ -509,6 +509,20 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "schedule"
+version = "1.2.2"
+description = "Job scheduling for humans."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "schedule-1.2.2-py3-none-any.whl", hash = "sha256:5bef4a2a0183abf44046ae0d164cadcac21b1db011bdd8102e4a0c1e91e06a7d"},
+    {file = "schedule-1.2.2.tar.gz", hash = "sha256:15fe9c75fe5fd9b9627f3f19cc0ef1420508f9f9a46f45cd0769ef75ede5f0b7"},
+]
+
+[package.extras]
+timezone = ["pytz"]
+
+[[package]]
 name = "sqlalchemy"
 version = "2.0.36"
 description = "Database Abstraction Library"
@@ -683,4 +697,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "fb4fa4dc3197ca735652b3a3a86ae966c2678369acc5a970390f52c610cd4436"
+content-hash = "c28b92c0226bdee551110a2356c3e37e1ebc678cec4b9e96386b69a5a8268092"
