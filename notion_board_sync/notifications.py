@@ -3,8 +3,36 @@ from typing import List
 
 from notion_board_sync.types import UpdateInfo
 
-
 LOGGER = logging.getLogger(__name__)
+
+NEW_TICKET_MESSAGE = """
+*New Ticket:* {ticket_url}
+*Status:* {status}
+*Priority:* {priority}
+"""
+
+DELETED_TICKET_MESSAGE = """
+*Deleted Ticket:* {title}
+"""
+
+UPDATED_TICKET_MESSAGE = """
+*Updated Ticket:* {ticket_url}
+{changes}
+"""
+
+
+def format_slack_url(url: str, text: str) -> str:
+    """
+    Format a URL for Slack message formatting.
+
+    Args:
+        url: The URL to format.
+        text: The text to display for the URL.
+
+    Returns:
+        str: The formatted URL for Slack.
+    """
+    return f"<{url}|{text}>"
 
 
 def send_notifications(
@@ -22,20 +50,21 @@ def send_notifications(
     """
     for update in updates:
         if update.is_created:
-            # New ticket notification
-            message = f"""
-            *New Ticket:* {update.ticket.title}
-            *Status:* {update.current.status or 'N/A'}
-            *Priority:* {update.current.priority or 'N/A'}
-            *URL:* {update.ticket.url}
-            """
+            message = NEW_TICKET_MESSAGE.format(
+                ticket_url=format_slack_url(
+                    update.ticket.url,
+                    update.ticket.title,
+                ),
+                status=update.current.status or "N/A",
+                priority=update.current.priority or "N/A",
+            )
+
         elif update.is_deleted:
-            # Deleted ticket notification
-            message = f"""
-            *Deleted Ticket:* {update.before.title}
-            """
+            message = DELETED_TICKET_MESSAGE.format(
+                title=update.before.title,
+            )
+
         elif update.is_updated:
-            # Updated ticket notification
             changes = []
             if update.before.title != update.current.title:
                 changes.append(
@@ -50,17 +79,16 @@ def send_notifications(
                     f"*Priority:* {update.before.priority} → {update.current.priority}"
                 )
 
-            message = f"""
-            *Updated Ticket:* {update.ticket.title}
-            {"\n".join(changes)}
-            *URL:* {update.ticket.url}
-            """
+            message = UPDATED_TICKET_MESSAGE.format(
+                ticket_url=format_slack_url(update.ticket.url, update.ticket.title),
+                changes="\n".join(changes),
+            )
+
         else:
-            # No actionable updates
+            LOGGER.warning("Invalid update type. Skipping...")
             continue
 
-        # Send the Slack message
-        slack_client.send_message(channel=slack_channel, text=message)
+        slack_client.send_message(channel=slack_channel, text=message.strip())
         LOGGER.info(
             f"Notification sent for ticket: {update.ticket.title if update.ticket else update.before.title}"
         )
