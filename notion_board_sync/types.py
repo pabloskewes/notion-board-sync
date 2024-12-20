@@ -10,12 +10,19 @@ class Ticket(BaseModel):
     priority: Optional[str]
     estimation: Optional[float]
     url: str
+    last_edited_time: str
+
+
+class TicketState(BaseModel):
+    title: str
+    status: Optional[str]
+    priority: Optional[str]
 
 
 class UpdateInfo(BaseModel):
     ticket: Ticket
-    before: Optional[Ticket] = None
-    current: Ticket
+    before: Optional[TicketState] = None
+    current: TicketState
 
     @property
     def updated(self) -> bool:
