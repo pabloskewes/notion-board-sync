@@ -1,5 +1,5 @@
 from typing import List
-from notion_board_sync.models import Ticket
+from notion_board_sync.types import Ticket
 
 
 def parse_tickets(raw_data: dict) -> List[Ticket]:

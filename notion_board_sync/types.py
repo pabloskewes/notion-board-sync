@@ -10,3 +10,14 @@ class Ticket(BaseModel):
     priority: Optional[str]
     estimation: Optional[float]
     url: str
+
+
+class UpdateInfo(BaseModel):
+    ticket: Ticket
+    before: Optional[Ticket] = None
+    current: Ticket
+
+    @property
+    def updated(self) -> bool:
+        """Determine if the ticket has been updated."""
+        return self.before != self.current
