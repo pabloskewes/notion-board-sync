@@ -19,16 +19,31 @@ def sync_tickets(
         db_session: The database session for updating tickets.
 
     Returns:
-        List[UpdateInfo]: A list of new or updated tickets with change details to send notifications for.
+        List[UpdateInfo]: A list of created, updated, or deleted tickets
+            to notify about.
     """
-    # Fetch tickets from Notion
     raw_data = notion_client.query_database()
     current_tickets = parse_tickets(raw_data)
 
-    updates_to_notify = []
+    updates_to_notify: list[UpdateInfo] = []
+    current_ticket_ids = {ticket.id for ticket in current_tickets}
 
+    # Handle existing tickets in the database
+    for db_ticket in db_session.query(TicketDB).all():
+        if db_ticket.id not in current_ticket_ids:
+            # Ticket exists in the database but not in Notion -> Deleted
+            before_state = TicketState(
+                title=db_ticket.title,
+                status=db_ticket.status,
+                priority=db_ticket.priority,
+            )
+            updates_to_notify.append(
+                UpdateInfo(ticket=None, before=before_state, current=None)
+            )
+            db_session.delete(db_ticket)
+
+    # Handle tickets fetched from Notion
     for ticket in current_tickets:
-        # Check if the ticket exists in the database
         db_ticket = db_session.query(TicketDB).filter_by(id=ticket.id).first()
 
         before_state = None
@@ -58,6 +73,7 @@ def sync_tickets(
             )
 
         else:
+            # New ticket -> Create in database
             new_ticket = TicketDB(
                 id=ticket.id,
                 title=ticket.title,

@@ -20,11 +20,25 @@ class TicketState(BaseModel):
 
 
 class UpdateInfo(BaseModel):
-    ticket: Ticket
+    ticket: Optional[Ticket]
     before: Optional[TicketState] = None
-    current: TicketState
+    current: Optional[TicketState] = None
 
     @property
-    def updated(self) -> bool:
-        """Determine if the ticket has been updated."""
-        return self.before != self.current
+    def is_created(self) -> bool:
+        """Determine if the ticket was newly created."""
+        return self.before is None and self.current is not None
+
+    @property
+    def is_deleted(self) -> bool:
+        """Determine if the ticket was deleted."""
+        return self.current is None
+
+    @property
+    def is_updated(self) -> bool:
+        """Determine if the ticket was updated."""
+        return (
+            self.before is not None
+            and self.current is not None
+            and self.before != self.current
+        )
