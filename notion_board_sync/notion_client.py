@@ -1,23 +1,11 @@
-from typing import Dict, Any
-
+from typing import Dict, Any, List
 import requests
 
 
 class NotionClient:
-    """
-    A simple client to interact with the Notion API.
-    """
-
     BASE_URL = "https://api.notion.com/v1"
 
     def __init__(self, api_key: str, database_id: str):
-        """
-        Initialize the NotionClient with API key and database ID.
-
-        Args:
-            api_key (str): The Notion API key.
-            database_id (str): The ID of the Notion database to query.
-        """
         self.api_key = api_key
         self.database_id = database_id
         self.headers = {
@@ -26,19 +14,36 @@ class NotionClient:
             "Content-Type": "application/json",
         }
 
-    def query_database(self) -> Dict[str, Any]:
+    def query_database(self) -> List[Dict[str, Any]]:
         """
-        Queries the Notion database and returns the raw JSON response.
+        Queries the Notion database and handles pagination.
 
         Returns:
-            dict: The JSON response from the Notion API.
+            List[dict]: A list of all items in the database.
         """
         url = f"{self.BASE_URL}/databases/{self.database_id}/query"
-        response = requests.post(url, headers=self.headers, timeout=10)
+        all_results = []
+        next_cursor = None
 
-        if not response.ok:
-            raise Exception(
-                f"Failed to query Notion database: {response.status_code} - {response.text}"
+        while True:
+            payload = {"start_cursor": next_cursor} if next_cursor else {}
+            response = requests.post(
+                url,
+                headers=self.headers,
+                json=payload,
+                timeout=60,
             )
 
-        return response.json()
+            if not response.ok:
+                raise Exception(
+                    f"Failed to query Notion database: {response.status_code} - {response.text}"
+                )
+
+            data = response.json()
+            all_results.extend(data.get("results", []))
+            next_cursor = data.get("next_cursor")
+
+            if not next_cursor:
+                break
+
+        return all_results

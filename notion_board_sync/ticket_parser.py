@@ -13,7 +13,7 @@ def parse_tickets(raw_data: dict) -> List[Ticket]:
         List[Ticket]: A list of parsed Ticket objects.
     """
     tickets = []
-    for page in raw_data.get("results", []):
+    for page in raw_data:
         props = page["properties"]
         tickets.append(
             Ticket(
@@ -34,6 +34,7 @@ def parse_tickets(raw_data: dict) -> List[Ticket]:
                 ),
                 estimation=props["Estimation"]["number"],
                 url=page["url"],
+                last_edited_time=page["last_edited_time"],
             )
         )
     return tickets
